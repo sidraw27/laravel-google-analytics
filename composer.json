@@ -1,0 +1,38 @@
+{
+    "name": "sidraw/laravel-google-analytics",
+    "keywords": ["laravel", "php", "google analytics", "ga", "analytic"],
+    "description": "Laravel Google Analytics Package",
+    "homepage": "https://github.com/sidraw27/laravel-google-analytics",
+    "type": "library",
+    "require": {
+        "php": ">=7.1.0",
+        "google/apiclient": "^2.2",
+        "laravel/framework": "^5.4"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.0",
+        "phpunit/phpunit": "^6.0|^7.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "SiDraw",
+            "email": "sidraw.fr@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Sidraw\\GoogleAnalytics": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Sidraw\\GoogleAnalytics\\GoogleAnalyticsServiceProvider"
+            ],
+            "aliases": {
+                "GoogleAnalytics": "Sidraw\\GoogleAnalytics\\Facade\\GoogleAnalytics"
+            }
+        }
+    }
+}
