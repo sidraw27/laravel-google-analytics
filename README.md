@@ -54,7 +54,9 @@ public function getReport()
         ]
     ];
     
-    $report = GoogleAnalytics::getReport($startDate, $endDate, $metrics, $dimensions, $filters, $this->getAiUrlIdRegx());
+    $regex = '/(\S+)\./';
+
+    $report = GoogleAnalytics::getReport($startDate, $endDate, $metrics, $dimensions, $filters, $regex);
 
     return $report;
 }
@@ -64,10 +66,10 @@ result
 
 ```php
 array (size=2)
-  'welcome.php' => 
+  'welcome' => 
     array (size=1)
       'pv' => int 7015
-  'search.html' => 
+  'search' => 
       array (size=1)
         'pv' => int 9301
 
