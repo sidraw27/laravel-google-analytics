@@ -6,6 +6,8 @@ abstract class AbstractSet
 {
     protected static $instance = [];
 
+    protected $collection = [];
+
     private function __construct(){}
 
     public static function getInstance() {
@@ -18,7 +20,14 @@ abstract class AbstractSet
         return self::$instance[$class];
     }
 
+    public function get(): array
+    {
+        $result = $this->collection;
+        $this->collection = [];
+
+        return $result;
+    }
+
     abstract public function getCollection(): \Google_Model;
     abstract public function set(array $expressions);
-    abstract public function get(): array;
 }

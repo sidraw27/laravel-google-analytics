@@ -4,8 +4,6 @@ namespace Sidraw\GoogleAnalytics\App;
 
 class Dimensions extends AbstractSet
 {
-    private $dimensions = [];
-
     /**
      * @return \Google_Service_AnalyticsReporting_Dimension
      */
@@ -21,12 +19,7 @@ class Dimensions extends AbstractSet
 
             $collect->setName("ga:{$name}");
 
-            $this->dimensions[] = $collect;
+            $this->collection[] = $collect;
         }
-    }
-
-    public function get(): array
-    {
-        return $this->dimensions;
     }
 }

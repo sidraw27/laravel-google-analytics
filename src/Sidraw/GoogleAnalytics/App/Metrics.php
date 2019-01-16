@@ -4,8 +4,6 @@ namespace Sidraw\GoogleAnalytics\App;
 
 class Metrics extends AbstractSet
 {
-    private $metrics = [];
-
     /**
      * @return \Google_Service_AnalyticsReporting_Metric
      */
@@ -30,12 +28,7 @@ class Metrics extends AbstractSet
                 $collection->setAlias($alias);
             }
 
-            $this->metrics[] = $collection;
+            $this->collection[] = $collection;
         }
-    }
-
-    public function get(): array
-    {
-        return $this->metrics;
     }
 }
