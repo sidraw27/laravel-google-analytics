@@ -74,3 +74,7 @@ array (size=2)
         'pv' => int 9301
 
 ```
+
+License
+------------
+MIT
