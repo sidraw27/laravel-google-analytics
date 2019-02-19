@@ -141,7 +141,7 @@ class GoogleAnalytics
         return ($check === $time) && ((int)$time <= PHP_INT_MAX) && ((int)$time >= ~PHP_INT_MAX);
     }
 
-    private function setFilterClause(string $type, array $expressions)
+    private function setFilterClause(string $type, array $expressions, string $operator = 'AND')
     {
         switch ($type) {
             case 'dimension':
@@ -161,6 +161,7 @@ class GoogleAnalytics
                 }
 
                 $dimensionFilterClause = new \Google_Service_AnalyticsReporting_DimensionFilterClause();
+                $dimensionFilterClause->setOperator($operator);
                 $dimensionFilterClause->setFilters($filters);
                 $this->request->setDimensionFilterClauses($dimensionFilterClause);
                 break;
