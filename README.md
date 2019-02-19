@@ -41,7 +41,10 @@ public function getReport()
     
     $alias = 'pv';
     $metrics    = ['pageviews' => $alias];
-    $dimensions = ['pagePath'];
+    // if regex is null then result will not include this
+    $dimensions = [
+        'pagePath' => '/(\S+)\./' 
+    ];
     
     $whatYouNeedToFilter = [
         'welcome.php',
@@ -53,10 +56,8 @@ public function getReport()
             'pagePath' => $whatYouNeedToFilter
         ]
     ];
-    
-    $regex = '/(\S+)\./';
 
-    $report = GoogleAnalytics::getReport($startDate, $endDate, $metrics, $dimensions, $filters, $regex);
+    $report = GoogleAnalytics::getReport($startDate, $endDate, $metrics, $dimensions, $filters);
 
     return $report;
 }
