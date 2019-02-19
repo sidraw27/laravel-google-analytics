@@ -52,7 +52,7 @@ class GoogleAnalytics
         $this->setDateRange($startDate, $endDate);
 
         $this->metrics->set($metrics);
-        $this->dimensions->set($dimensions);
+        $this->dimensions->set(array_keys($dimensions));
 
         foreach ($filters as $type => $filter) {
             $this->setFilterClause($type, $filter);
@@ -66,7 +66,7 @@ class GoogleAnalytics
 
         $response = $this->analytic->reports->batchGet($body);
 
-        return $this->parseResult($response, $preg);
+        return $this->parseResult($response, array_values($dimensions));
     }
 
     /**
@@ -159,6 +159,7 @@ class GoogleAnalytics
                         $filters[] = $filter;
                     }
                 }
+
                 $dimensionFilterClause = new \Google_Service_AnalyticsReporting_DimensionFilterClause();
                 $dimensionFilterClause->setFilters($filters);
                 $this->request->setDimensionFilterClauses($dimensionFilterClause);
@@ -166,13 +167,9 @@ class GoogleAnalytics
         }
     }
 
-    private function parseResult(\Google_Service_AnalyticsReporting_GetReportsResponse $responses, string $preg = null)
+    private function parseResult(\Google_Service_AnalyticsReporting_GetReportsResponse $responses, array $dimensionRule = null)
     {
         $result = [];
-
-        if (is_null($preg) || strlen($preg) === 0) {
-            $preg = '/(\S+)/';
-        }
 
         foreach ($responses as $report) {
             /** @var \Google_Service_AnalyticsReporting_ColumnHeader $header */
@@ -184,24 +181,45 @@ class GoogleAnalytics
             foreach ($rows as $row) {
                 $dimensions = $row->getDimensions();
 
-                preg_match("$preg", $dimensions[0], $match);
-                if ( ! isset($match[1])) {
-                    continue;
-                }
-                $key = $match[1];
+                $dimensionNestedKeys = [];
+                foreach ($dimensions as $key => $dimension) {
+                    $rule = $dimensionRule[$key];
+                    if (is_null($rule) || is_bool($rule) && ! $rule) continue;
 
-                $metrics = $row->getMetrics();
+                    if (preg_match('/^\/+.*\/{1}$/', $rule)) {
+                        preg_match($rule, $dimension, $match);
+                        if ( ! isset($match[1])) {
+                            continue 2;
+                        }
+                        $dimensionNestedKeys[] = $match[1];
+                    } else {
+                        $dimensionNestedKeys[] = $rule;
+                    }
+                }
+
+                $metrics  = $row->getMetrics();
+                $metricsResult = [];
                 foreach ($metrics as $metric) {
                     foreach ($metric->getValues() as $index => $value) {
                         $metricName = $metricHeaders[$index]->getName();
 
-                        if (isset($result[$key][$metricName])) {
-                            $result[$key][$metricName] += $value;
+                        if (isset($metricsResult[$metricName])) {
+                            $metricsResult[$metricName] += $value;
                         } else {
-                            $result[$key][$metricName] = (int)$value;
+                            $metricsResult[$metricName] = (int) $value;
                         }
                     }
                 }
+
+                $tmpArr = [];
+                $tmp = &$tmpArr;
+                foreach ($dimensionNestedKeys as $index => $key) {
+                    if (empty($tmp[$key])) {
+                        $tmp[$key] = key(array_slice($dimensionNestedKeys,-1,1,TRUE)) === $index ? $metricsResult : [];
+                        $tmp = &$tmp[$key];
+                    }
+                }
+                $result = array_merge_recursive($result, $tmpArr);
             }
         }
 
