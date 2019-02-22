@@ -147,17 +147,18 @@ class GoogleAnalytics
             case 'dimension':
                 $filters = [];
                 foreach ($expressions as $dimensionName => $expression) {
-                    if ( ! is_array($expression)) {
-                        $expression = [$expression];
+                    $filter = new \Google_Service_AnalyticsReporting_DimensionFilter();
+                    $filter->setDimensionName("ga:{$dimensionName}");
+                    // Todo: 需修改可自定義operator
+                    if (is_array($expression)) {
+                        $filter->setOperator('REGEXP');
+                        $filter->setExpressions('(' . implode('|', $expression) . ')');
+                    } else {
+                        $filter->setOperator('PARTIAL');
+                        $filter->setExpressions($expression);
                     }
 
-                    foreach ($expression as $value) {
-                        $filter = new \Google_Service_AnalyticsReporting_DimensionFilter();
-                        $filter->setDimensionName("ga:{$dimensionName}");
-                        $filter->setExpressions($value);
-
-                        $filters[] = $filter;
-                    }
+                    $filters[] = $filter;
                 }
 
                 $dimensionFilterClause = new \Google_Service_AnalyticsReporting_DimensionFilterClause();
